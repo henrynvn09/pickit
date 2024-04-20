@@ -111,3 +111,8 @@ def index() -> rx.Component:
             allow_toggle=True,
         )
     )
+
+@rx.page(route="/test", title="test")
+def test():
+    import ReflexTest.authentication.local_storage as ls
+    return ls.client_storage_example()
