@@ -1,4 +1,4 @@
-# Trash_logs = [ {"trash_name": "plastic bottle", "image": "image_id"}, {"trash_name": "plastic bottle", "image": "image_id"}]
+from ReflexTest.classes.user import User
 
 def add_user(mydb, username, password):
     userdb = mydb["Users"]
@@ -15,12 +15,12 @@ def get_user(mydb, username, password):
     userdb = mydb["Users"]
     user_dict = userdb.find_one({"username": username, "password": password})
     if user_dict:
-        return User(user_dict)
+        return User.init_from_dict(user_dict)
     else:
         return None
 
 def add_a_trash(mydb, user:User, point, trash_name, image_id):
-    userdb = mydb["Users"]
+    userdb = mydb["Users"]  
 
     user.add_points(point)
     
