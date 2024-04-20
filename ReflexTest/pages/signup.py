@@ -68,7 +68,8 @@ def signup() -> rx.Component:
                 ),
                 on_submit=SignUpState.on_submit,
             ),
-            rx.cond(  # conditionally show error messages
+            rx.center(
+                rx.cond(  # conditionally show error messages
                     SignUpState.error_message != "",
                     rx.callout(
                         rx.text(SignUpState.error_message),
@@ -78,8 +79,7 @@ def signup() -> rx.Component:
                         role="alert",
                     ),
                 ),
-            
-            rx.center(rx.link("Login", href="/login"), width="100%", justify_content="center")
+                rx.link("Login", href="/login"), width="100%", justify_content="center")
         ),
         padding="20px 25px",
         border="1px solid gray",

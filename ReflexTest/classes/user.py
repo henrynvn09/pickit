@@ -60,12 +60,3 @@ class User():
     def __str__(self):
         return f"username: {self.username}, password: {self.password}, points: {self.points}, trash_logs: {self.trash_logs}"
     
-
-
-if __name__ == "__main__":
-    user = User("test", "password")
-    print(user)
-    user_dict = user.__dict__
-
-    new_user = User.init_from_dict(user_dict)
-    print(new_user)

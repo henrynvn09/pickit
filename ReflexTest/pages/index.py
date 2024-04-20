@@ -12,6 +12,18 @@ class ModalState(rx.State):
 
     def change(self):
         self.show = not (self.show)
+    
+    saved_username: str = rx.Cookie(
+        name="", max_age=36000
+    )
+
+    def save_user_to_cookie(self, username: str):
+        self.saved_username = username
+
+    def get_saved_user(self):
+        return self.saved_username
+    
+
 
 @template(route="/", title="Home")
 def index() -> rx.Component:
@@ -20,6 +32,7 @@ def index() -> rx.Component:
     Returns:
         The UI for the home page.
     """
+    print("from index: ", ModalState.get_saved_user())
     return(
         rx.flex(
             rx.button(
@@ -112,7 +125,7 @@ def index() -> rx.Component:
         )
     )
 
-@rx.page(route="/test", title="test")
-def test():
-    import ReflexTest.authentication.local_storage as ls
-    return ls.client_storage_example()
+# @rx.page(route="/test", title="test")
+# def test():
+#     import ReflexTest.authentication.local_storage as ls
+#     return ls.client_storage_example()
