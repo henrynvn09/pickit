@@ -1,4 +1,4 @@
-# Trash_logs = [ [item_id, photo_id] , [item_id, photo_id] ]
+# Trash_logs = [ {"trash_name": "plastic bottle", "image": "image_id"}, {"trash_name": "plastic bottle", "image": "image_id"}]
 
 def add_user(mydb, username, password):
     userdb = mydb["Users"]
@@ -15,10 +15,10 @@ def get_user(mydb, username, password):
     userdb = mydb["Users"]
     return userdb.find_one({"username": username, "password": password})
 
-def add_a_trash(mydb, user, point, trash_id, image_id):
+def add_a_trash(mydb, user, point, trash_name, image_id):
     userdb = mydb["Users"]
     user["points"] += point
-    new_log = [trash_id, image_id]
+    new_log = {"trash_name": trash_name, "image": image_id}
     user["trash_logs"].append(new_log)
 
     userdb.update_one({"username": user["username"]}, {"$set": {"points": user["points"], "trash_logs": user["trash_logs"]}})
