@@ -40,27 +40,32 @@ class LoginState(rx.State):
             self.save_user_to_cookie(username)
             return rx.redirect("/")
 
-
-@template(route="/login", title="login")
 def login() -> rx.Component:
     """Render the login page.
 
     Returns:
         A reflex component.
     """
+    rx.center(rx.text("Pickit"),
+              position="fixed",
+              top="0px",
+            )
 
-    login_form = rx.box(
+    login_form = rx.center(
         rx.vstack(
             rx.form(
                 rx.fragment(
                     rx.heading(
-                        "Login into your Account", size="7", margin_bottom="2rem"
+                        "Account Login", size="7", margin_bottom="2rem", align="center"
                     ),
                     rx.input(
                         placeholder="username",
                         id="username",
                         border_color="hsl(240,3.7%,15.9%)",
                         justify_content="center",
+                    ),
+                    rx.container(
+                        height="5px"
                     ),
                     rx.input(
                         placeholder="password",
@@ -77,36 +82,32 @@ def login() -> rx.Component:
                         ),
                         padding_top="14px",
                     ),
+                    rx.container(height="5px"),
+                    rx.center(rx.link("Sign Up", href="/signup"), width="100%", justify_content="center")
+                    ,
                 ),
                 on_submit=LoginState.on_submit,
             ),
             # rx.link("Register", href=REGISTER_ROUTE),
             align_items="center"
         ),
-        padding="8rem 10rem",
-        margin_top="10vh",
-        margin_x="auto",
-        border="2px solid black",
+        padding="20px 25px",
+        border="1px solid gray",
         border_color="gray.300",
         border_radius=10,
+        align_items="center",
+        box_shadow="3px 3px 5px #222"
     )
 
-    return rx.fragment(
+    return rx.center(
         rx.cond(
             LoginState.is_hydrated,  # type: ignore
-            rx.vstack(
-                rx.cond(  # conditionally show error messages
-                    LoginState.error_message != "",
-                    rx.callout(
-                        rx.text("This is an error"),
-                        # LoginState.error_message,
-                        icon="triangle_alert",
-                        color_scheme="red",
-                        role="alert",
-                    ),
-                ),
-                login_form,
-                padding_top="10vh",
-            ),
+            login_form
+        ),
+        width="100%",
+        height="70vh",
+        align_items="center",
+        justify_content="center",
+        align="center",
+        overflow="hidden"
         )
-    )

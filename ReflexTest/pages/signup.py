@@ -50,6 +50,7 @@ def signup() -> rx.Component:
                         border_color="hsl(240,3.7%,15.9%)",
                         justify_content="center",
                     ),
+                    rx.container(height="5px"),
                     rx.input(
                         placeholder="password",
                         id="password",
