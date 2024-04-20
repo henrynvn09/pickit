@@ -31,15 +31,3 @@ overlapping_button_style = {
     "background_color": "white",
     "border_radius": border_radius,
 }
-
-markdown_style = {
-    "code": lambda text: rx.code(text, color_scheme="gray"),
-    "codeblock": lambda text, **props: rx.code_block(text, **props, margin_y="1em"),
-    "a": lambda text, **props: rx.link(
-        text,
-        **props,
-        font_weight="bold",
-        text_decoration="underline",
-        text_decoration_color=accent_text_color,
-    ),
-}

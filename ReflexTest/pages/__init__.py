@@ -1,3 +1,3 @@
-from .dashboard import dashboard
+from .trashupload import trashupload
 from .index import index
 from .settings import settings
