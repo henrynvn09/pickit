@@ -1,5 +1,9 @@
 from ReflexTest.templates import template
 import reflex as rx
+import ReflexTest.CRUD.user_db as userDB
+from ReflexTest.components.db_connection import get_db_instance
+
+mydb = get_db_instance()
 
 class SignUpState(rx.State):
     """Handle login form submission and redirect to proper routes after authentication."""
@@ -7,6 +11,27 @@ class SignUpState(rx.State):
     error_message: str = ""
     redirect_to: str = ""
 
+    async def on_submit(self, form_data) -> None:
+        """Handle form submission."""
+        
+        username = form_data["username"]
+        password = form_data["password"]
+        
+        if username == "" or password == "":
+            self.error_message = "Please fill in all fields."
+            return
+        
+        user = userDB.get_user(mydb, username, password)
+        
+        if user:
+            self.error_message = "User already exists."
+        else:
+            if userDB.add_user(mydb, username, password):
+                print("User added")
+                rx.redirect("/login")
+                
+                
+        
 
 @template(route="/signup", title="Sign Up")
 def signup() -> rx.Component:
@@ -17,18 +42,6 @@ def signup() -> rx.Component:
                 rx.fragment(
                     rx.heading(
                         "Create an Account", size="7", margin_bottom="2rem"
-                    ),
-                    rx.input(
-                        placeholder="First Name",
-                        color="hsl(240, 5%, 64.9%)",
-                        margin_top="2px",
-                        margin_bottom="4px",
-                    ),
-                    rx.input(
-                        placeholder="Last Name",
-                        color="hsl(240, 5%, 64.9%)",
-                        margin_top="2px",
-                        margin_bottom="4px",
                     ),
                     rx.input(
                         placeholder="username",
@@ -52,9 +65,9 @@ def signup() -> rx.Component:
                         padding_top="14px",
                     ),
                 ),
-                # on_submit=LoginState.on_submit,
+                on_submit=SignUpState.on_submit,
             ),
-            # rx.link("Register", href=REGISTER_ROUTE),
+            rx.link("Register", href="/login"),
             align_items="center"
         ),
         padding="8rem 10rem",
