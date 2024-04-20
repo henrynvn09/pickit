@@ -1,4 +1,4 @@
-"""The dashboard page."""
+"""The Trash Upload page."""
 
 from ReflexTest.templates import template
 import google.generativeai as genai
@@ -29,13 +29,18 @@ mycol = mydb["Users"]
 # x = mycol.insert_one(mydict)
 
 
-class DashboardState(rx.State):
+class TrashUploadState(rx.State):
     """The app state."""
 
     # The images to show.
     img: list[str]
-    data: str = "asdasdasd"
-    score: str = "score"
+    data: str = ""
+    score: str = ""
+    
+    def clear_state(self):
+        self.img = []
+        self.data = ""
+        self.score = ""
 
     def add_points(self, total_points, new_points):
         try:
@@ -68,6 +73,12 @@ class DashboardState(rx.State):
     #         'data': image_bytes.getvalue()
     #     }
     #     return image
+    async def handle_save(self):
+        self.clear_state()
+        return rx.redirect(
+            "http://localhost:3000/",
+            external=False,)
+
 
     async def handle_upload(self, files: list[rx.UploadFile]):
         """Handle the upload of file(s).
@@ -114,35 +125,49 @@ class DashboardState(rx.State):
 color = "rgb(107,99,246)"
 
 
-@template(route="/dashboard", title="Dashboard")
-def dashboard() -> rx.Component:
-    """The dashboard page.
+@template(route="/trashupload", title="Trash Upload")
+def trashupload() -> rx.Component:
+    """The Trash Upload page.
 
     Returns:
-        The UI for the dashboard page.
+        The UI for the Trash Upload page.
     """
     return rx.vstack(
+        rx.heading("Trash Upload"),
+        rx.text(
+            "Upload your trash here to earn some more points!",
+            font_weight="bold",
+            font_size="1em",
+            ),
         rx.upload(
             rx.vstack(
                 rx.button("Select File", color=color, bg="white", border=f"1px solid {color}"),
-                rx.text("Drag and drop files here or click to select files"),
             ),
             id="upload1",
             border=f"1px dotted {color}",
-            padding="5em",
+            border_radius= "5px",
+            padding="4em",
         ),
         rx.hstack(rx.foreach(rx.selected_files("upload1"), rx.text)),
-        rx.button(
-            "Upload",
-            on_click=DashboardState.handle_upload(rx.upload_files(upload_id="upload1")),
+        rx.flex(
+            rx.button(
+                "Upload",
+                on_click=TrashUploadState.handle_upload(rx.upload_files(upload_id="upload1")),
+            ),
+            rx.button(
+                "Clear",
+                on_click=rx.clear_selected_files("upload1"),
+            ),
+            spacing="2"
         ),
+        
+        rx.foreach(TrashUploadState.img, lambda img: rx.image(src=rx.get_upload_url(img))),
+        rx.text(TrashUploadState.data),
+        rx.text(TrashUploadState.score),
         rx.button(
-            "Clear",
-            on_click=rx.clear_selected_files("upload1"),
+            "Save",
+            on_click=TrashUploadState.handle_save(),
         ),
-        rx.foreach(DashboardState.img, lambda img: rx.image(src=rx.get_upload_url(img))),
-        rx.text(DashboardState.data),
-        rx.text(DashboardState.score),
-        padding="5em",
+        padding="4em",
 
     )
