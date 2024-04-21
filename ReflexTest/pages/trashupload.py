@@ -10,6 +10,12 @@ import io
 import pymongo
 from pymongo import MongoClient
 
+from ReflexTest.components.db_connection import get_db_instance
+import ReflexTest.CRUD.user_db as userDB 
+from .index import UserState
+
+
+
 try:
     api_key = os.environ["API_KEY"]
 except KeyError:
@@ -21,9 +27,7 @@ genai.configure(api_key=os.environ["API_KEY"])
 model = genai.GenerativeModel('gemini-pro-vision')
 text_model = genai.GenerativeModel('gemini-pro')
 
-myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-mydb = myclient["mydatabase"]
-mycol = mydb["Users"]
+mydb = get_db_instance()
 # mydict = {"f_name": "ryan", "l_name": "perez", "user_ID": "123", "password": "123",
 #           "points": "", "img_list": []}
 # x = mycol.insert_one(mydict)
@@ -36,12 +40,17 @@ class TrashUploadState(rx.State):
     img: list[str] = []
     data: str = ""
     score: str = ""
+    name = "coca cola"
     error_msg: bool = True
+    saved_username: str = rx.Cookie(
+        name="username_pickit", max_age=36000
+    )
     
     def clear_state(self):
         self.img = []
         self.data = ""
         self.score = ""
+        self.name = ""
         self.error_msg = False
 
     def add_points(self, total_points, new_points):
@@ -76,6 +85,8 @@ class TrashUploadState(rx.State):
     #     }
     #     return image
     async def handle_save(self):
+        userDB.add_a_trash(mydb, self.saved_username, int(self.score), self.name, self.img[0])
+
         self.handle_clear(None)
         return rx.redirect(
             "/",
@@ -141,6 +152,7 @@ class TrashUploadState(rx.State):
         self.score = ""
         self.error_msg = True
         return None
+    
 
 color = "rgb(107,99,246)"
 

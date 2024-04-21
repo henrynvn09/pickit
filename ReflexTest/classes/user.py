@@ -1,5 +1,4 @@
 # {"username": username, "password": password, "points": 0, "trash_logs": []}
-import reflex as rx
 
 class User():
     username: str
