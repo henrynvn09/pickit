@@ -4,8 +4,9 @@ import ReflexTest.CRUD.user_db as userDB
 from ReflexTest.classes.user import User
 import ReflexTest.components.db_connection as db
 
-
 mydb = db.get_db_instance()
+
+
 class LoginState(rx.State):
     """Handle login form submission and redirect to proper routes after authentication."""
 
@@ -32,7 +33,7 @@ class LoginState(rx.State):
             self.error_message = "Please fill in all fields."
             return
 
-        user:User = userDB.get_user(mydb, username, password)
+        user: User = userDB.get_user(mydb, username, password)
 
         if not user:
             self.error_message = "User is not exists."
@@ -40,21 +41,24 @@ class LoginState(rx.State):
             self.save_user_to_cookie(username)
             return rx.redirect("/")
 
+
+@template(route="/login", title="Login")
 def login() -> rx.Component:
     """Render the login page.
 
     Returns:
         A reflex component.
     """
-    rx.center(rx.text("Pickit"),
-              position="fixed",
-              top="0px",
-            )
+
 
     login_form = rx.center(
         rx.vstack(
             rx.form(
                 rx.fragment(
+                    rx.center(rx.image(src="/pickit_logo.png", width="120px",
+                                       height="auto", align="center", padding_bottom="1rem"
+                                       , padding_top="1rem")
+                              ),
                     rx.heading(
                         "Account Login", size="7", margin_bottom="2rem", align="center"
                     ),
@@ -89,20 +93,22 @@ def login() -> rx.Component:
                 on_submit=LoginState.on_submit,
             ),
             # rx.link("Register", href=REGISTER_ROUTE),
-            align_items="center"
+            align_items="center",
+            overflow="hidden"
         ),
         padding="20px 25px",
         border="1px solid gray",
         border_color="gray.300",
         border_radius=10,
         align_items="center",
-        box_shadow="3px 3px 5px #222"
+        box_shadow="3px 3px 5px #222",
+        overflow="hidden"
     )
 
     return rx.center(
         rx.cond(
             LoginState.is_hydrated,  # type: ignore
-            login_form
+            login_form,
         ),
         width="100%",
         height="70vh",
@@ -110,4 +116,4 @@ def login() -> rx.Component:
         justify_content="center",
         align="center",
         overflow="hidden"
-        )
+    )

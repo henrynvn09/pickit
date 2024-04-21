@@ -34,6 +34,9 @@ def index() -> rx.Component:
     """
     print("from index: ", ModalState.get_saved_user())
     return(
+        rx.center(rx.image(src="/pickit_logo.png", width="180px",
+                           height="auto", align="center", paddingbottom="2rem")
+                  ),
         rx.flex(
             rx.button(
                     "🏆",
