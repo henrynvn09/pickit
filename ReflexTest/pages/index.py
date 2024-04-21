@@ -50,7 +50,7 @@ class UserState(ModalState):
     username: str = ""
     password: str = ""
     avatar: str = "default_avatar.png"
-    points: int = -1
+    points: int = 0
     trash_logs: list[dict] = [{"name": "plastic", "point": 1, "img": "1"}]
 
     def fetch_user(self):
