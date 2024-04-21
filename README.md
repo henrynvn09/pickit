@@ -3,6 +3,8 @@ submission: [PickIt | Devpost](https://devpost.com/software/pickit-8t0xdw)
 
 PickIt is a gamified hiking app that encourages eco-friendly behavior. Hikers scan trash they find on trails, earning points based on the environmental impact of collecting the item. They compete with others in their community for the most points and prizes.
 
+[![Pickit mobile app](https://img.youtube.com/vi/ttMsZU0GU78/0.jpg)](https://www.youtube.com/watch?v=ttMsZU0GU78)
+
 ## Tech Stack
 - First time with [Reflex · Web apps in Pure Python](https://reflex.dev/)
 - MongoDB
