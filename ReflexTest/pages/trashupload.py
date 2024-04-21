@@ -33,14 +33,16 @@ class TrashUploadState(rx.State):
     """The app state."""
 
     # The images to show.
-    img: list[str]
+    img: list[str] = []
     data: str = ""
     score: str = ""
+    error_msg: bool = True
     
     def clear_state(self):
         self.img = []
         self.data = ""
         self.score = ""
+        self.error_msg = False
 
     def add_points(self, total_points, new_points):
         try:
@@ -74,18 +76,30 @@ class TrashUploadState(rx.State):
     #     }
     #     return image
     async def handle_save(self):
-        self.clear_state()
+        self.handle_clear(None)
         return rx.redirect(
-            "http://localhost:3000/",
-            external=False,)
+            "/",
+            )
+    
+    async def handle_back(self):
+        self.handle_clear(None)
+        return rx.redirect(
+            "/",
+            )
 
 
-    async def handle_upload(self, files: list[rx.UploadFile]):
+    async def handle_upload(self, files: list[rx.UploadFile]=[]):
         """Handle the upload of file(s).
 
         Args:
             files: The uploaded files.
         """
+        if len(files) < 1: 
+            self.error_msg = True
+            print("caught")
+            return None
+        else: 
+            self.error_msg = False
 
         for file in files:
             upload_data = await file.read()
@@ -121,8 +135,15 @@ class TrashUploadState(rx.State):
             # Update the img var.
             self.img.append(file.filename)
 
+    def handle_clear(self, clearHandle):
+        self.img = []
+        self.data = ""
+        self.score = ""
+        self.error_msg = True
+        return None
 
 color = "rgb(107,99,246)"
+
 
 
 @template(route="/trashupload", title="Trash Upload")
@@ -132,6 +153,7 @@ def trashupload() -> rx.Component:
     Returns:
         The UI for the Trash Upload page.
     """
+    rx.redirect("/current-page")
     return rx.vstack(
         rx.heading("Trash Upload"),
         rx.text(
@@ -149,14 +171,30 @@ def trashupload() -> rx.Component:
             padding="4em",
         ),
         rx.hstack(rx.foreach(rx.selected_files("upload1"), rx.text)),
+        rx.cond(
+            TrashUploadState.error_msg,
+            rx.callout(
+                "Please upload an image.",
+                icon="alert_triangle",
+                color_scheme="red",
+                role="alert",
+            ),
+        ),
         rx.flex(
-            rx.button(
+            rx.cond(
+                not rx.upload_files(upload_id="upload1"),
+                rx.button(
+                "Upload",
+                disabled=True,
+                ),
+                rx.button(
                 "Upload",
                 on_click=TrashUploadState.handle_upload(rx.upload_files(upload_id="upload1")),
+                )
             ),
             rx.button(
                 "Clear",
-                on_click=rx.clear_selected_files("upload1"),
+                on_click=TrashUploadState.handle_clear(rx.clear_selected_files("upload1")),
             ),
             spacing="2"
         ),
@@ -164,10 +202,25 @@ def trashupload() -> rx.Component:
         rx.foreach(TrashUploadState.img, lambda img: rx.image(src=rx.get_upload_url(img))),
         rx.text(TrashUploadState.data),
         rx.text(TrashUploadState.score),
-        rx.button(
-            "Save",
-            on_click=TrashUploadState.handle_save(),
+        rx.flex(
+            rx.button(
+                "Back",
+                on_click=TrashUploadState.handle_back(),
+            ),
+            rx.cond(TrashUploadState.error_msg,        
+            rx.button(
+                "Save",
+                on_click=TrashUploadState.handle_save(),
+                disabled=True,
+            ),
+            rx.button(
+                "Save",
+                on_click=TrashUploadState.handle_save(),
+            ),
+            ),
+            spacing="2"
         ),
+        
         padding="4em",
-
     )
+

@@ -78,8 +78,8 @@ def index() -> rx.Component:
             align="center",
             justify="center",
             on_click=rx.redirect(
-            "http://localhost:3000/trashupload",
-            external=False,),
+            "/trashupload",
+            ),
             #direction="row",
             height="100%",
             width="100%",
