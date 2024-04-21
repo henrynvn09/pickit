@@ -5,6 +5,7 @@ from ReflexTest.components.db_connection import get_db_instance
 
 mydb = get_db_instance()
 
+
 class SignUpState(rx.State):
     """Handle login form submission and redirect to proper routes after authentication."""
 
@@ -13,16 +14,16 @@ class SignUpState(rx.State):
 
     def on_submit(self, form_data) -> None:
         """Handle form submission."""
-        
+
         username = form_data["username"]
         password = form_data["password"]
-        
+
         if username == "" or password == "":
             self.error_message = "Please fill in all fields."
             return
-        
+
         user = userDB.get_user(mydb, username, password)
-        
+
         if user:
             self.error_message = "User already exists."
         else:
@@ -31,12 +32,9 @@ class SignUpState(rx.State):
             else:
                 self.error_message = "please try again the connection"
 
-                
-        
 
 @template(route="/signup", title="Sign Up")
 def signup() -> rx.Component:
-
     signup_form = rx.box(
         rx.vstack(
             rx.form(
@@ -87,7 +85,7 @@ def signup() -> rx.Component:
         border_color="gray.300",
         border_radius=10,
         align_items="center",
-        box_shadow= "3px 3px 5px #222"
+        box_shadow="3px 3px 5px #222"
     )
 
     return rx.center(
