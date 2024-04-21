@@ -158,14 +158,13 @@ def index() -> rx.Component:
                         rx.foreach(
                             UserState.trash_logs,
                             lambda i: rx.card(rx.flex(
-                                rx.avatar(src=rx.get_upload_url(i["img"])),
-                                rx.text(i["point"], font_size="1.2rem"),
-                                rx.text(i["name"], font_size="1.2rem"),
+                                rx.avatar(src=rx.get_upload_url(i["img"]), width="100%",height="10vh"),
+                                rx.text(i["point"], "pts - ", i["name"], font_size="1.2rem"),
                                 direction="column"
                             )
                         , height="15vh"),
                         ),
-                        columns="3",
+                        columns="2",
                         spacing="4",
                         width="100%",
                     )
