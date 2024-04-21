@@ -63,7 +63,7 @@ class UserState(ModalState):
         self.points = user.points
         self.trash_logs = user.trash_logs
 
-
+color = "rgb(107,99,246)"
 @template(route="/", title="Home")
 def index() -> rx.Component:
     """The home page.
@@ -74,8 +74,20 @@ def index() -> rx.Component:
 
     return rx.cond(
         ModalState.is_hydrated,
-        rx.fragment(
-            rx.flex(
+        rx.vstack(
+            rx.hstack(
+                rx.button(
+                    "", rx.icon(tag="arrow-left-from-line"), color=color, bg="green"
+                    , border=f"1px solid {color}"
+
+                    , on_click=rx.redirect(
+                "http://localhost:3000/login",
+                external=False,)
+                ),
+                rx.image(src="/pickit_logo.png", width="125px",
+                         height="auto", align="center", padding_bottom="1rem"
+                         , padding_top="4rem"),
+                rx.flex(
                 rx.button(
                         "🏆",
                         on_mount=UserState.fetch_user,
@@ -110,6 +122,11 @@ def index() -> rx.Component:
                     ),
                     is_open=ModalState.show,
                 ),
+             margin="0px", align="center", padding="0", top="0", position="fixed", background="white", width="100%", justify_content="space-between"),
+            rx.container(rx.image(src="/lahacksdino.png", width="120px", border_radius="50%",
+                                  height="auto", align="center", padding_bottom="1rem"
+                                  , padding_top="1rem"), margin_top="4rem", margin_left="7rem", padding="10px", background="black", align="center", border_radius="50%")
+            ,
             rx.flex(
                 rx.flex(
                     rx.text(UserState.points),
