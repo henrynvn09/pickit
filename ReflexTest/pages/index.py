@@ -24,6 +24,7 @@ class ModalState(rx.State):
     
     def logout(self):
         self.saved_username = ""
+        return rx.redirect("/login")
     
     def save_user_to_cookie(self, username: str):
         self.saved_username = username
@@ -146,7 +147,7 @@ def index() -> rx.Component:
                 background_color="#185c1c",
 
                 on_click=rx.redirect(
-                "http://localhost:3000/trashupload",
+                "/trashupload",
                 external=False,),
                 #direction="row",
                 height="100%",

@@ -16,7 +16,6 @@ def settings() -> rx.Component:
         rx.heading("Settings", size="8"),
         rx.hstack(
             rx.text("Dark mode: "),
-            rx.color_mode.switch(),
         ),
         rx.hstack(
             rx.text("Primary color: "),

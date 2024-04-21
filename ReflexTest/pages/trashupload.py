@@ -52,6 +52,7 @@ class TrashUploadState(rx.State):
         self.score = ""
         self.name = ""
         self.error_msg = False
+        self.set_rating_text = False
 
 
     def add_points(self, total_points, new_points):
@@ -202,11 +203,14 @@ def trashupload() -> rx.Component:
             rx.cond(
                 not rx.upload_files(upload_id="upload1"),
                 rx.button(
-                "Upload",
+                "Scan",
                 disabled=True,
+                padding_x="1.5rem",
                 ),
                 rx.button(
-                "Upload",
+                "Scan",
+
+                padding_x="1.5rem",
                 on_click=TrashUploadState.handle_upload(rx.upload_files(upload_id="upload1")),
                 )
             ),
