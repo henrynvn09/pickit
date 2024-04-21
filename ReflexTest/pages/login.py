@@ -13,15 +13,22 @@ class LoginState(rx.State):
     redirect_to: str = ""
 
     saved_username: str = rx.Cookie(
-        name="", max_age=36000
+        name="username_pickit", max_age=36000
     )
 
+    def logout(self):
+        self.saved_username = ""
+    
     def save_user_to_cookie(self, username: str):
         self.saved_username = username
         # print("saved user to cookie", self.saved_username)
 
     def get_saved_user(self):
         return self.saved_username
+
+    def isAuthenticated(self):
+        return self.saved_username != ""
+        
 
     def on_submit(self, form_data) -> None:
         """Handle form submission."""
@@ -38,14 +45,28 @@ class LoginState(rx.State):
             self.error_message = "User is not exists."
         else:
             self.save_user_to_cookie(username)
+            print("saved user to cookie", self.saved_username)
             return rx.redirect("/")
+        
+    
+    def redir(self):
+        """redirect to the login page if not logged in"""
+        if not self.is_hydrated:
+            return LoginState.redir()
 
+        page = self.router.page.path
+        if page == "/login" and self.isAuthenticated():
+            return rx.redirect("/")
+    
+
+@template(route="/login", title="Login")
 def login() -> rx.Component:
     """Render the login page.
 
     Returns:
         A reflex component.
     """
+
     rx.center(rx.text("Pickit"),
               position="fixed",
               top="0px",
@@ -99,15 +120,22 @@ def login() -> rx.Component:
         box_shadow="3px 3px 5px #222"
     )
 
-    return rx.center(
-        rx.cond(
-            LoginState.is_hydrated,  # type: ignore
-            login_form
+    return rx.cond( 
+        LoginState.is_hydrated,
+        rx.center(
+            rx.cond(
+                LoginState.is_hydrated,  # type: ignore
+                login_form
+            ),
+            width="100%",
+            height="70vh",
+            align_items="center",
+            justify_content="center",
+            align="center",
+            overflow="hidden"
         ),
-        width="100%",
-        height="70vh",
-        align_items="center",
-        justify_content="center",
-        align="center",
-        overflow="hidden"
+        rx.center(
+            rx.chakra.spinner(on_mount=LoginState.redir),
+        ),
         )
+
