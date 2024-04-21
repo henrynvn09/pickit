@@ -9,6 +9,7 @@ from PIL import Image
 import io
 import pymongo
 from pymongo import MongoClient
+import json
 
 from ReflexTest.components.db_connection import get_db_instance
 import ReflexTest.CRUD.user_db as userDB 
@@ -40,7 +41,8 @@ class TrashUploadState(rx.State):
     img: list[str] = []
     data: str = ""
     score: str = ""
-    name = "coca cola"
+    name: str = ""
+    description = ""
     error_msg: bool = True
     saved_username: str = rx.Cookie(
         name="username_pickit", max_age=36000
@@ -50,6 +52,7 @@ class TrashUploadState(rx.State):
         self.img = []
         self.data = ""
         self.score = ""
+        self.description = ""
         self.name = ""
         self.error_msg = False
         self.set_rating_text = False
@@ -122,22 +125,46 @@ class TrashUploadState(rx.State):
             with outfile.open("wb") as file_object:
                 file_object.write(upload_data)
             img = PIL.Image.open(io.BytesIO(upload_data))
-            response = model.generate_content(["""Make sure to cover the important details of the
-            the subject in focus, but describe it in as few words as possible.""",img], stream=True)
-            response.resolve()
-            self.data = self.data.replace(self.data, response.text)
-            text_response = text_model.generate_content([
-                "Give a number between 1-10 that accurately represents the quantity "
-                "at which the environment will improve if removed from the hiking trail it was found in. "
-                "10 being the best score. "
-                "Give Score based on how long it would take for the item to decompose,"
-                "and how toxic is to its environment. For example a biodegradable spoon is a 1, "
-                "while a plastic six pack rigs are a 10. If there are multiple items, "
-                "do an arthimetic sum of the indivivual scores of the items. Only give me a number.",
+            # response = model.generate_content(["""Make sure to cover the important details of the
+            # the subject in focus, but describe it in as few words as possible.""",img], stream=True)
+            # response.resolve()
+            # self.data = self.data.replace(self.data, response.text)
+            # text_response = text_model.generate_content([
+            #     "Give a number between 1-10 that accurately represents the quantity "
+            #     "at which the environment will improve if removed from the hiking trail it was found in. "
+            #     "10 being the best score. "
+            #     "Give Score based on how long it would take for the item to decompose,"
+            #     "and how toxic is to its environment. For example a biodegradable spoon is a 1, "
+            #     "while a plastic six pack rigs are a 10. If there are multiple items, "
+            #     "do an arthimetic sum of the indivivual scores of the items. Only give me a number.",
+            #     self.data], stream=True)
+            # text_response.resolve()
+            text_response = model.generate_content([img,
+                """please set the random seed = 393948394 so that all answers will be consistent
+                help me make a scale to grade the impact of the trash to the environment. Highest is worst with requirements below.
+                Q1. tell me the name of the trash
+                Q2: Give a number between 1-15 that accurately represents the quantity at which the environment will improve if removed from the hiking trail it was found in. 20 being the best score. Score based on Carbon Footprint, Recycling Rate, and Toxicity. Each of them has score ranging from 0 to 5. give me the answer in number for each scale only.
+
+                answer in term of a JSON, for example
+                {
+                    "name": "plastic bags",
+                    "description": "describe below 20 words about its impact on the environment",
+                    "data": "3 (Carbon Footprint) + 2 (Recycling Rate) + 4 (Toxicity)",
+                    "total": "9"
+                }
+                """,
                 self.data], stream=True)
             text_response.resolve()
-            self.score = self.score.replace(self.score, text_response.text)
+
+            response = text_response.text[8:-3]
+            response_obj = json.loads(response)
+
+            self.data = self.data.replace(self.data, response_obj["data"])
+            self.name = self.name.replace(self.name, response_obj["name"])
+            self.description = self.description.replace(self.description, response_obj["description"])
+            self.score = self.score.replace(self.score, response_obj["total"])
             self.set_rating_text = True
+            # self.score = self.score.replace(self.score, text_response.text)
             # image_bytes = io.BytesIO()
             # img.save(image_bytes, format='JPEG')
             # image = {
@@ -155,6 +182,8 @@ class TrashUploadState(rx.State):
         self.img = []
         self.data = ""
         self.score = ""
+        self.description = ""
+        self.set_rating_text= False
         self.error_msg = True
         return None
     
@@ -222,6 +251,7 @@ def trashupload() -> rx.Component:
         ),
         
         rx.foreach(TrashUploadState.img, lambda img: rx.image(src=rx.get_upload_url(img))),
+        rx.text(TrashUploadState.description),
         rx.text(TrashUploadState.data),
         rx.cond(TrashUploadState.set_rating_text,
                 rx.text("This piece is worth " + TrashUploadState.score + " points!"),),
