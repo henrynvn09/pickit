@@ -3,9 +3,14 @@
 from ReflexTest import styles
 from ReflexTest.templates import template
 import pandas as pd
+import ReflexTest.CRUD.user_db as user_db
+from ReflexTest.components.db_connection import get_db_instance
+from ReflexTest.classes.user import User
 
 import reflex as rx
 nba_data = pd.read_csv("https://media.geeksforgeeks.org/wp-content/uploads/nba.csv")
+
+mydb = get_db_instance()
 
 class ModalState(rx.State):
     show: bool = False
@@ -38,7 +43,25 @@ class ModalState(rx.State):
         page = self.router.page.path
         if not self.isAuthenticated() and page != "/login":
             return rx.redirect("/login")
-    
+        
+
+class UserState(ModalState):
+    username: str = ""
+    password: str = ""
+    avatar: str = "default_avatar.png"
+    points: int = -1
+    trash_logs: list[dict] = [{"name": "plastic", "point": 1}, {"name": "paper", "point": 1}, {"name": "glass", "point": 1}]
+
+    def fetch_user(self):
+        if self.get_saved_user() == "":
+            return
+        # user = user_db.get_user_without_password(mydb, "username1")
+        user:User = user_db.get_user_without_password(mydb, self.get_saved_user())
+        self.username = user.username
+        self.password = user.password
+        self.avatar = user.avatar
+        self.points = user.points
+        self.trash_logs = user.trash_logs
 
 
 @template(route="/", title="Home")
@@ -49,13 +72,13 @@ def index() -> rx.Component:
         The UI for the home page.
     """
 
-
     return rx.cond(
         ModalState.is_hydrated,
         rx.fragment(
             rx.flex(
                 rx.button(
                         "🏆",
+                        on_mount=UserState.fetch_user,
                     ),
                 direction="column",
                 align="end",
@@ -89,7 +112,7 @@ def index() -> rx.Component:
                 ),
             rx.flex(
                 rx.flex(
-                    rx.text("Hello World!"),
+                    rx.text(UserState.points),
                     padding_top="17em",
                     align="center",
                     justify="center",

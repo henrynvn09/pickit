@@ -1,6 +1,13 @@
 # {"username": username, "password": password, "points": 0, "trash_logs": []}
+import reflex as rx
 
 class User():
+    username: str
+    password: str
+    avatar: str
+    points: int
+    trash_logs: list
+
     def __init__(self, username="", password:str="", avatar="default_avatar.png"):
         self.username = username
         self.password = password

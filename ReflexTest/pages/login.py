@@ -23,7 +23,7 @@ class LoginState(rx.State):
     def save_user_to_cookie(self, username: str):
         self.saved_username = username
         # print("saved user to cookie", self.saved_username)
-
+        
     def get_saved_user(self):
         return self.saved_username
 
