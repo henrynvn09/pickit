@@ -31,7 +31,7 @@ mycol = mydb["Users"]
 
 class TrashUploadState(rx.State):
     """The app state."""
-
+    set_rating_text = False
     # The images to show.
     img: list[str] = []
     data: str = ""
@@ -43,6 +43,7 @@ class TrashUploadState(rx.State):
         self.data = ""
         self.score = ""
         self.error_msg = False
+
 
     def add_points(self, total_points, new_points):
         try:
@@ -109,7 +110,9 @@ class TrashUploadState(rx.State):
             with outfile.open("wb") as file_object:
                 file_object.write(upload_data)
             img = PIL.Image.open(io.BytesIO(upload_data))
-            response = model.generate_content(img)
+            response = model.generate_content(["""Make sure to cover the important details of the
+            the subject in focus, but describe it in as few words as possible.""",img], stream=True)
+            response.resolve()
             self.data = self.data.replace(self.data, response.text)
             text_response = text_model.generate_content([
                 "Give a number between 1-10 that accurately represents the quantity "
@@ -122,6 +125,7 @@ class TrashUploadState(rx.State):
                 self.data], stream=True)
             text_response.resolve()
             self.score = self.score.replace(self.score, text_response.text)
+            self.set_rating_text = True
             # image_bytes = io.BytesIO()
             # img.save(image_bytes, format='JPEG')
             # image = {
@@ -160,6 +164,7 @@ def trashupload() -> rx.Component:
             "Upload your trash here to earn some more points!",
             font_weight="bold",
             font_size="1em",
+            align="center"
             ),
         rx.upload(
             rx.vstack(
@@ -175,10 +180,11 @@ def trashupload() -> rx.Component:
             TrashUploadState.error_msg,
             rx.callout(
                 "Please upload an image.",
-                icon="alert_triangle",
-                color_scheme="red",
+                icon="camera",
+                color_scheme="grass",
                 role="alert",
             ),
+
         ),
         rx.flex(
             rx.cond(
@@ -201,7 +207,8 @@ def trashupload() -> rx.Component:
         
         rx.foreach(TrashUploadState.img, lambda img: rx.image(src=rx.get_upload_url(img))),
         rx.text(TrashUploadState.data),
-        rx.text(TrashUploadState.score),
+        rx.cond(TrashUploadState.set_rating_text,
+                rx.text("This piece is worth " + TrashUploadState.score + " points!"),),
         rx.flex(
             rx.button(
                 "Back",
@@ -221,6 +228,6 @@ def trashupload() -> rx.Component:
             spacing="2"
         ),
         
-        padding="4em",
+        padding="4em", align="center"
     )
 
