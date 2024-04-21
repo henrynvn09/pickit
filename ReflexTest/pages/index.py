@@ -8,7 +8,7 @@ from ReflexTest.components.db_connection import get_db_instance
 from ReflexTest.classes.user import User
 
 import reflex as rx
-nba_data = pd.read_csv("LINK TO CSV FILE")
+nba_data = pd.read_csv("https://raw.githubusercontent.com/henrynvn09/Pickit/main/assets/rank.csv")
 
 mydb = get_db_instance()
 
@@ -19,8 +19,10 @@ class ModalState(rx.State):
         name="username_pickit", max_age=36000
     )
 
-    def change(self):
-        self.show = not (self.show)
+    def hide_modal(self):
+        self.show = False
+    def show_modal(self):
+        self.show = True
     
     def logout(self):
         self.saved_username = ""
@@ -92,7 +94,7 @@ def index() -> rx.Component:
                             on_mount=UserState.fetch_user,
                             background_color="#8693a3",
                         ),
-                    on_click=ModalState.change,
+                    on_click=ModalState.show_modal,
                     height="100%",
                     width="100%",
                 ),
@@ -102,7 +104,7 @@ def index() -> rx.Component:
                                 rx.chakra.modal_header("Leaderboard"),
                                 rx.chakra.modal_body(
                                     rx.data_table(
-                                    data = nba_data[["Username", "Points"]],
+                                    data = nba_data[["Rank", "Username", "Points"]],
                                     pagination= True,
                                     search= True,
                                     sort= True,
@@ -111,11 +113,12 @@ def index() -> rx.Component:
                                 rx.chakra.modal_footer(
                                     rx.chakra.button(
                                         "Close",
-                                        on_click=ModalState.change,
+                                        on_click=ModalState.hide_modal,
                                     )
                                 ),
-                            )
+                            ),
                         ),
+                        on_click=ModalState.hide_modal,
                         is_open=ModalState.show,
                     ),
                 position="fixed", top=0, padding_top="1.04rem",
@@ -132,7 +135,7 @@ def index() -> rx.Component:
                                     box_shadow="0.8px 0.8px 3px #222")
             ,
             rx.center(
-                    rx.text(UserState.points, font_size="6rem", color="black",
+                    rx.text(UserState.points, font_size="6rem", color="black", text_shadow="0.8px 0.8px 2px #222"
                     ), margin_left="35%", margin_top="2rem"
             ),
             rx.button(
