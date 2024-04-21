@@ -43,7 +43,7 @@ class ModalState(rx.State):
         page = self.router.page.path
         if not self.isAuthenticated() and page != "/login":
             return rx.redirect("/login")
-        
+
 
 class UserState(ModalState):
     username: str = ""
@@ -71,84 +71,80 @@ def index() -> rx.Component:
     Returns:
         The UI for the home page.
     """
+    top_bar = rx.hstack(
+                rx.button(
+                    "", rx.icon(tag="arrow-left-from-line"), color="black"
+                    , border=f"1px solid gray", 
+                    background_color="#FDF8FA", border_radius="10%",
+                    margin_right="1.5rem"
+                    ,on_click=ModalState.logout
+                ),
+
+                rx.image(src="/pickit_logo.png", width="125px",
+                         height="auto", align="center", padding_bottom="1rem",
+                         margin_x="9%"
+                         , padding_top="10%"),
+                
+                rx.flex(
+                    rx.button(
+                            "Rank 🏆",
+                            on_mount=UserState.fetch_user,
+                            background_color="#8693a3",
+                        ),
+                    on_click=ModalState.change,
+                    height="100%",
+                    width="100%",
+                ),
+                rx.chakra.modal(
+                        rx.chakra.modal_overlay(
+                            rx.chakra.modal_content(
+                                rx.chakra.modal_header("Leaderboard"),
+                                rx.chakra.modal_body(
+                                    rx.data_table(
+                                    data = nba_data[["Name", "Height", "Age"]],
+                                    pagination= True,
+                                    search= True,
+                                    sort= True,
+                                ),
+                                ),
+                                rx.chakra.modal_footer(
+                                    rx.chakra.button(
+                                        "Close",
+                                        on_click=ModalState.change,
+                                    )
+                                ),
+                            )
+                        ),
+                        is_open=ModalState.show,
+                    ),
+                position="fixed", top=0, padding_top="1.04rem",
+                width="100%", justify="between", background_color="#FDF8FA")
+            
 
     return rx.cond(
         ModalState.is_hydrated,
         rx.vstack(
-            rx.hstack(
-                rx.button(
-                    "", rx.icon(tag="arrow-left-from-line"), color=color, bg="green"
-                    , border=f"1px solid {color}"
-
-                    , on_click=rx.redirect(
-                "http://localhost:3000/login",
-                external=False,)
-                ),
-                rx.image(src="/pickit_logo.png", width="125px",
-                         height="auto", align="center", padding_bottom="1rem"
-                         , padding_top="4rem"),
-                rx.flex(
-                rx.button(
-                        "🏆",
-                        on_mount=UserState.fetch_user,
-                    ),
-                direction="column",
-                align="end",
-                justify="end",
-                on_click=ModalState.change,
-                #direction="row",
-                height="100%",
-                width="100%",
-            ),
-            rx.chakra.modal(
-                    rx.chakra.modal_overlay(
-                        rx.chakra.modal_content(
-                            rx.chakra.modal_header("Leaderboard"),
-                            rx.chakra.modal_body(
-                                rx.data_table(
-                                data = nba_data[["Name", "Height", "Age"]],
-                                pagination= True,
-                                search= True,
-                                sort= True,
-                            ),
-                            ),
-                            rx.chakra.modal_footer(
-                                rx.chakra.button(
-                                    "Close",
-                                    on_click=ModalState.change,
-                                )
-                            ),
-                        )
-                    ),
-                    is_open=ModalState.show,
-                ),
-             margin="0px", align="center", padding="0", top="0", position="fixed", background="white", width="100%", justify_content="space-between"),
+            top_bar,
             rx.container(rx.image(src="/lahacksdino.png", width="120px", border_radius="50%",
-                                  height="auto", align="center", padding_bottom="1rem"
-                                  , padding_top="1rem"), margin_top="4rem", margin_left="7rem", padding="10px", background="black", align="center", border_radius="50%")
+                                  height="auto", align="center"), margin_top="4rem", margin_left="7rem", padding="5px", 
+                                  background="black", align="center", border_radius="50%",
+                                    box_shadow="0.8px 0.8px 3px #222")
             ,
-            rx.flex(
-                rx.flex(
-                    rx.text(UserState.points),
-                    padding_top="17em",
-                    align="center",
-                    justify="center",
-                    direction="row",
-                    height="100%",
-                ),
-                align="center",
-                justify="center",
-                direction="column",
-                width="100%",
+            rx.center(
+                    rx.text(UserState.points, font_size="6rem", color="black",
+                    ), margin_left="35%", margin_top="2rem"
             ),
-            rx.flex(
-                rx.button(
-                        "📷"
-                    ),
-                direction="column",
-                padding_top="5em",
+            rx.button(
+                        "Share your findings! 📷",
+                        
+                padding="1em",
                 align="center",
                 justify="center",
+                font_size="1.4rem",
+                margin_left="16%",
+                margin_top="2rem",
+                background_color="#185c1c",
+
                 on_click=rx.redirect(
                 "http://localhost:3000/trashupload",
                 external=False,),
@@ -178,10 +174,11 @@ def index() -> rx.Component:
                         width="100%",
                     ))
                 ],
-                padding_top="17em",
+                padding_top="4em",
                 width="100%",
                 allow_toggle=True,
             )
+        
         ),
      rx.center(
          rx.chakra.spinner(on_mount=ModalState.redir)
