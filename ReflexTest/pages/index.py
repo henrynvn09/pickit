@@ -8,7 +8,7 @@ from ReflexTest.components.db_connection import get_db_instance
 from ReflexTest.classes.user import User
 
 import reflex as rx
-nba_data = pd.read_csv("https://media.geeksforgeeks.org/wp-content/uploads/nba.csv")
+nba_data = pd.read_csv("LINK TO CSV FILE")
 
 mydb = get_db_instance()
 
@@ -102,7 +102,7 @@ def index() -> rx.Component:
                                 rx.chakra.modal_header("Leaderboard"),
                                 rx.chakra.modal_body(
                                     rx.data_table(
-                                    data = nba_data[["Name", "Height", "Age"]],
+                                    data = nba_data[["Username", "Points"]],
                                     pagination= True,
                                     search= True,
                                     sort= True,
