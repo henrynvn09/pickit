@@ -8,7 +8,7 @@ from ReflexTest.components.db_connection import get_db_instance
 from ReflexTest.classes.user import User
 
 import reflex as rx
-nba_data = pd.read_csv("https://raw.githubusercontent.com/henrynvn09/Pickit/main/assets/rank.csv")
+nba_data = pd.read_csv("https://raw.githubusercontent.com/elliotfayman/Pickit/main/assets/rank.csv")
 
 mydb = get_db_instance()
 
