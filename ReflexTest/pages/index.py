@@ -53,7 +53,7 @@ class UserState(ModalState):
     password: str = ""
     avatar: str = "default_avatar.png"
     points: int = 0
-    trash_logs: list[dict] = [{"name": "plastic", "point": 1, "img": "1"}]
+    trash_logs: list[dict] = [{"name": "plastic", "point": 0, "img": ""}]
 
     def fetch_user(self):
         if self.get_saved_user() == "":
@@ -129,59 +129,46 @@ def index() -> rx.Component:
         ModalState.is_hydrated,
         rx.vstack(
             top_bar,
-            rx.container(rx.image(src="/lahacksdino.png", width="120px", border_radius="50%",
+            rx.container(rx.image(src="/lahacksdino.png" , width="120px", border_radius="50%",
                                   height="auto", align="center"), margin_top="4rem", margin_left="7rem", padding="5px", 
                                   background="black", align="center", border_radius="50%",
                                     box_shadow="0.8px 0.8px 3px #222")
             ,
             rx.center(
                     rx.text(UserState.points, font_size="6rem", color="black", text_shadow="0.8px 0.8px 2px #222"
-                    ), margin_left="35%", margin_top="2rem"
+                    ), margin_top="2rem", margin="auto"
             ),
             rx.button(
                         "Share your findings! 📷",
                         
-                padding="1em",
+                padding="30px",
                 align="center",
                 justify="center",
                 font_size="1.4rem",
-                margin_left="16%",
                 margin_top="2rem",
                 background_color="#185c1c",
+                margin_x="auto",
+                margin_bottom="2rem",
 
                 on_click=rx.redirect(
                 "/trashupload",
-                external=False,),
-                #direction="row",
-                height="100%",
-                width="100%",
+                external=False,)
             ),
-            rx.chakra.accordion(
-                items=[
-                    (rx.flex(
-                rx.text(
-                        "Collected Trash",
-                    ),
-                direction="column",
-                align="center",
-                justify="center",
-                #direction="row",
-                height="100%",
-                width="100%",
-            ), rx.grid(
+             rx.grid(
                         rx.foreach(
-                            rx.Var.range(12),
-                            lambda i: rx.card(f"Card {i + 1}", height="10vh"),
+                            UserState.trash_logs,
+                            lambda i: rx.card(rx.flex(
+                                rx.avatar(src=rx.get_upload_url(i["img"])),
+                                rx.text(i["point"], font_size="1.2rem"),
+                                rx.text(i["name"], font_size="1.2rem"),
+                                direction="column"
+                            )
+                        , height="15vh"),
                         ),
                         columns="3",
                         spacing="4",
                         width="100%",
-                    ))
-                ],
-                padding_top="4em",
-                width="100%",
-                allow_toggle=True,
-            )
+                    )
         
         ),
      rx.center(
